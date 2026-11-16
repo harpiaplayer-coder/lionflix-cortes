@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LionFlix Cortes</title>
+<style>
+:root{--gold:#f5b400;--gold2:#ffd35a;--blue:#1e90ff;--bg:#05060c;--card:#0d1020;--line:#23284a;--txt:#eef1ff;--mut:#8a91b8}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 500px at 0% 0%,#3a2500 0,transparent 60%),radial-gradient(1200px 500px at 100% 0%,#00265a 0,transparent 60%),var(--bg);color:var(--txt);font:15px/1.4 system-ui,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+header img{height:52px;display:none}
+h1{margin:0;font-size:22px;letter-spacing:.5px;background:linear-gradient(90deg,var(--gold),var(--blue));-webkit-background-clip:text;color:transparent}
+header small{color:var(--mut)}
+main{max-width:1200px;margin:auto;padding:16px;display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+h2{margin:0 0 12px;font-size:16px;color:var(--gold2)}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab,.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#0a0d1c;color:var(--txt);cursor:pointer;font-size:14px}
+.tab.on,.chip.on{background:linear-gradient(90deg,var(--gold),#ff9d00);color:#111;border-color:transparent;font-weight:700}
+input,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#080b18;color:var(--txt);font-size:14px;margin-bottom:8px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+button.go{padding:11px 18px;border:0;border-radius:10px;background:linear-gradient(90deg,var(--gold),#ff9d00);color:#111;font-weight:800;cursor:pointer;font-size:15px}
+button.sec{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#0a0d1c;color:var(--txt);cursor:pointer}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.list{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.it{display:flex;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid #151934}
+.it:last-child{border:0}
+.it img{width:36px;height:52px;object-fit:cover;border-radius:6px;background:#111}
+.it .n{flex:1;min-width:0}
+.it .n b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .n span{color:var(--mut);font-size:12px}
+.it input{width:20px;height:20px;margin:0}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#12204a;color:#9cc4ff}
+.job{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#090c1a}
+.prog{height:8px;background:#151934;border-radius:99px;overflow:hidden;margin:8px 0}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--gold))}
+.clips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.clips a{display:block;position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.clips img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;background:#111}
+.clips span{position:absolute;bottom:4px;left:6px;font-size:11px;background:#000a;padding:1px 6px;border-radius:6px}
+.err{color:#ff7b7b;font-size:13px}
+.hide{display:none}
+label.chk{display:flex;gap:6px;align-items:center;color:var(--mut);font-size:13px}
+label.chk input{width:auto;margin:0}
+</style>
+</head>
+<body>
+<header>
+  <img id="logo" src="/logo.png" onload="this.style.display='block'" alt="">
+  <div><h1>LIONFLIX CORTES</h1><small>Sua diversão em primeiro lugar</small></div>
+</header>
+<main>
+  <section class="card">
+    <h2>1. Carregar lista</h2>
+    <div class="tabs">
+      <button class="tab on" data-m="m3u">Link M3U</button>
+      <button class="tab" data-m="file">Arquivo / texto M3U</button>
+      <button class="tab" data-m="xtream">DNS (Xtream)</button>
+    </div>
+    <div id="m-m3u"><input id="m3u" placeholder="http://servidor/get.php?username=...&password=...&type=m3u_plus"></div>
+    <div id="m-file" class="hide">
+      <input type="file" id="file" accept=".m3u,.m3u8,.txt">
+      <textarea id="txt" rows="3" placeholder="ou cole o conteúdo da lista aqui"></textarea>
+    </div>
+    <div id="m-xtream" class="hide row">
+      <input id="host" placeholder="DNS  ex: http://meudns.com:8080">
+      <input id="user" placeholder="Usuário">
+      <input id="pass" placeholder="Senha">
+    </div>
+    <button class="go" id="load">Ler lista</button>
+    <span id="lmsg" style="margin-left:10px;color:var(--mut)"></span>
+  </section>
+
+  <section class="card hide" id="sel">
+    <h2>2. Escolher filmes e séries</h2>
+    <div class="bar">
+      <button class="chip on" data-k="todos">Todos</button>
+      <button class="chip" data-k="filme">Filmes</button>
+      <button class="chip" data-k="serie">Séries</button>
+      <input id="q" placeholder="Buscar..." style="max-width:240px;margin:0">
+      <button class="sec" id="all">Marcar visíveis</button>
+      <button class="sec" id="none">Desmarcar</button>
+      <b id="count" style="color:var(--gold2)"></b>
+    </div>
+    <div class="list" id="list"></div>
+
+    <h2 style="margin-top:16px">3. Tamanho do corte</h2>
+    <div class="bar" id="sizes">
+      <button class="chip" data-s="30">30s</button>
+      <button class="chip on" data-s="60">60s</button>
+      <button class="chip" data-s="180">3 min</button>
+      <button class="chip" data-s="300">5 min</button>
+      <button class="chip" data-s="600">10 min</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="precise"> Corte preciso (re-codifica, mais lento). Desmarcado = modo rápido, sem perda de qualidade.</label>
+    <div class="bar"><button class="go" id="start">Cortar e gerar capas</button></div>
+  </section>
+
+  <section class="card">
+    <h2>Fila de cortes</h2>
+    <div class="bar"><button class="sec" id="clear">Limpar concluídos</button></div>
+    <div id="jobs"></div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+let items=[],kind='todos',secs=60,mode='m3u',sel=new Set();
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.m;
+  ['m3u','file','xtream'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
+});
+$('#file').onchange=async e=>{$('#txt').value=await e.target.files[0].text()};
+$('#load').onclick=async()=>{
+  const body=mode==='xtream'?{mode:'xtream',host:$('#host').value,user:$('#user').value,pass:$('#pass').value}
+    :mode==='file'?{mode:'m3u',text:$('#txt').value}:{mode:'m3u',url:$('#m3u').value};
+  $('#lmsg').textContent='Lendo lista...';
+  const r=await fetch('/api/load',{method:'POST',body:JSON.stringify(body)});const d=await r.json();
+  if(d.error){$('#lmsg').textContent='Erro: '+d.error;return}
+  items=d.items;sel.clear();$('#sel').classList.remove('hide');
+  $('#lmsg').textContent=items.length+' títulos encontrados';render();
+};
+document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('on'));b.classList.add('on');kind=b.dataset.k;render()});
+document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-s]').forEach(x=>x.classList.remove('on'));b.classList.add('on');secs=+b.dataset.s});
+$('#q').oninput=render;
+const vis=()=>items.filter(i=>(kind==='todos'||i.kind===kind)&&i.name.toLowerCase().includes($('#q').value.toLowerCase()));
+function render(){
+  const v=vis().slice(0,500);
+  $('#list').innerHTML=v.map(i=>`<label class="it"><input type="checkbox" data-i="${i.i}" ${sel.has(i.i)?'checked':''}>
+    <img loading="lazy" src="${i.logo||''}" onerror="this.style.visibility='hidden'"><div class="n"><b>${esc(i.name)}</b><span>${esc(i.group)}</span></div>
+    <span class="badge">${i.kind}</span></label>`).join('')||'<div class="it">Nada encontrado</div>';
+  $('#list').querySelectorAll('input').forEach(c=>c.onchange=()=>{c.checked?sel.add(+c.dataset.i):sel.delete(+c.dataset.i);cnt()});
+  cnt();
+}
+const cnt=()=>$('#count').textContent=sel.size+' selecionados';
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('#all').onclick=()=>{vis().slice(0,500).forEach(i=>sel.add(i.i));render()};
+$('#none').onclick=()=>{sel.clear();render()};
+$('#start').onclick=async()=>{
+  if(!sel.size)return alert('Selecione ao menos um título');
+  const r=await fetch('/api/start',{method:'POST',body:JSON.stringify({ids:[...sel],seconds:secs,precise:$('#precise').checked})});
+  const d=await r.json();if(d.error)alert(d.error);sel.clear();render();poll();
+};
+$('#clear').onclick=async()=>{await fetch('/api/clear',{method:'POST',body:'{}'});poll()};
+const open_=new Set();
+async function poll(){
+  const js=await (await fetch('/api/jobs')).json();
+  $('#jobs').innerHTML=js.slice().reverse().map(j=>`<div class="job"><b>${esc(j.name)}</b>
+    <span class="badge">${j.seconds>=60?j.seconds/60+' min':j.seconds+'s'}</span> <span class="badge">${j.status}</span>
+    <div class="prog"><i style="width:${j.progress}%"></i></div>
+    ${j.error?`<div class="err">${esc(j.error)}</div>`:''}${j.note?`<div style="color:var(--mut)">${esc(j.note)}</div>`:''}
+    ${j.status==='feito'&&j.clips.length?`<div class="bar"><span>${j.clips.length} cortes</span>
+      <a class="sec" style="padding:6px 12px;border:1px solid var(--line);border-radius:10px;color:var(--gold2);text-decoration:none" href="/api/zip?id=${j.id}">Baixar tudo (ZIP)</a></div>
+      <div class="clips">${j.clips.map((c,n)=>`<a href="/files/${encodeURI(c.video)}" target="_blank">
+        <img loading="lazy" src="/files/${encodeURI(c.cover)}"><span>Parte ${n+1}</span></a>`).join('')}</div>`:''}</div>`).join('')||'<div style="color:var(--mut)">Nenhum corte ainda.</div>';
+}
+setInterval(poll,2000);poll();
+</script>
+</body>
+</html>
